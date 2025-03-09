@@ -3,7 +3,7 @@ package models
 import "time"
 
 type User struct {
-	ID           string    `json:"id" db:"id"`
+	ID           int    `json:"id" db:"id"`
 	Name         string    `json:"name" db:"name"`
 	Email        string    `json:"email" db:"email"`
 	PasswordHash string    `json:"-" db:"password"`
@@ -25,7 +25,7 @@ type RequestCreateUser struct {
 }
 
 type RequestUpdateUser struct {
-	ID       string  `json:"id"`
+	ID       int  `json:"id"`
 	Name     string  `json:"name"`
 	Email    string  `json:"email"`
 	Age      int     `json:"age"`

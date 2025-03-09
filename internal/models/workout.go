@@ -1,15 +1,18 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Workout struct {
-	ID        string          `json:"id" db:"id"`
-	UserID    string          `json:"user_id" db:"user_id"`
-	ProgramID string          `json:"program_id" db:"program_id"`
+	ID        int          `json:"id" db:"id"`
+	UserID    int          `json:"user_id" db:"user_id"`
+	ProgramID int          `json:"program_id" db:"program_id"`
+	Date      time.Time       `json:"date" db:"date"`
 	Exercises []ExerciseEntry `json:"exercises" db:"exercises"`
-	CreatedAt time.Time       `json:"-" db:"created_at"`
 	Duration  int             `json:"duration" db:"duration"`
 	Calories  float64         `json:"calories" db:"calories"`
+	CreatedAt time.Time       `json:"-" db:"created_at"`
 }
 
 type RequestCreateWorkout struct {
@@ -18,7 +21,7 @@ type RequestCreateWorkout struct {
 }
 
 type RequestUpdateWorkout struct {
-	ID         string             `json:"id"`
+	ID         int             `json:"id"`
 	ProgramName string         `json:"program_name"`
 	Exercises  []ExerciseEntry `json:"exercises"`
 }
