@@ -11,6 +11,11 @@ type Storage struct {
 	db *sqlx.DB
 }
 
+func (s *Storage) GetDB() *sqlx.DB {
+	return s.db
+}
+
+
 func New() (Storage, error){
 	const op = "storage.postgre.New"	
 
@@ -78,7 +83,7 @@ func New() (Storage, error){
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(255) UNIQUE NOT NULL,
 	type VARCHAR(255),
-	muscle_group VARCHAR(50) NOT NULL,
+	muscle_group VARCHAR(50),
 	equipment VARCHAR(255),
 	difficulty VARCHAR(255),
 	instruction TEXT)`

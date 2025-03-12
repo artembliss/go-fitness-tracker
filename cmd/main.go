@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/artembliss/go-fitness-tracker/internal/handlers"
+	"github.com/artembliss/go-fitness-tracker/internal/repositories"
 	"github.com/artembliss/go-fitness-tracker/logger/sl"
 	"github.com/artembliss/go-fitness-tracker/storage/postgre"
 	"github.com/joho/godotenv"
@@ -25,7 +26,7 @@ func main() {
 	_ = storage
 	log.Info("Storage initialized")
 
-	if handlers.CheckExercisesExist(&storage){
+	if repositories.CheckExercisesExist(&storage){
 		log.Info("Exercises exist")
 	}else{
 		if err := fetchAndStoreExercises(&storage); err != nil{
@@ -47,5 +48,5 @@ func fetchAndStoreExercises(storage *postgre.Storage) (error) {
 	if err != nil {
 		return fmt.Errorf("%s, failed loading exercises: %w", op, err)
 	}
-	return handlers.SaveExercisesToDB(storage, exercises)	
+	return repositories.SaveExercisesToDB(storage, exercises)	
 }
