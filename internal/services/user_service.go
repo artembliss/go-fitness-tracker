@@ -5,6 +5,7 @@ import (
 
 	"github.com/artembliss/go-fitness-tracker/internal/models"
 	"github.com/artembliss/go-fitness-tracker/internal/repositories"
+	"github.com/artembliss/go-fitness-tracker/pkg/auth"
 )
 type UserService struct {
 	UserRepo *repositories.UserStorage
@@ -17,7 +18,7 @@ func NewUserService(repo *repositories.UserStorage) *UserService {
 func (s *UserService) RegisterUserService(reqUser *models.RequestCreateUser) (models.User, error){
 	const op = "services.RegisterUserService"
 	
-	hashedPassword, err := HashPassword(reqUser.Password)
+	hashedPassword, err := auth.HashPassword(reqUser.Password)
 	if err != nil{
 		return models.User{}, fmt.Errorf("%s: %w", op, err)
 	}

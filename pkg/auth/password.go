@@ -7,7 +7,7 @@ import (
 )
 
 func HashPassword(pswd string) (string, error) {
-	const op = "services.password.HashPassword"
+	const op = "auth.password.HashPassword"
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(pswd), bcrypt.DefaultCost)
 	if err != nil{
 		return "", fmt.Errorf("%s: %w", op, err)

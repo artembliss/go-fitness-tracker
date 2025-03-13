@@ -34,3 +34,8 @@ type RequestUpdateUser struct {
 	Weight   float64 `json:"weight"`
 }
 
+type RequestLoginUser struct{
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+}
+

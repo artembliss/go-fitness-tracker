@@ -32,3 +32,15 @@ func (s *UserStorage) RegisterUserRepository(user models.User) (int, error){
 	}
 	return user.ID, nil
 }
+
+func (s *UserStorage) GetUserByEmail(email string) (*models.User, error){
+	const op = "repositories.user_repository.GetUserByEmail"
+	
+	var user models.User
+	getUserQuery := `SELECT * FROM users WHERE email = $1`
+	err := s.db.Get(&user, getUserQuery, email)
+	if err != nil{
+		return nil, fmt.Errorf("%s: failed to find user by email: %w", op, err)
+	}
+	return &user, nil
+}

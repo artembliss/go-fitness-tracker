@@ -17,34 +17,38 @@ import (
 
 func main() {
 	env := os.Getenv("ENV")
-	log := sl.SetUpLogger(env)
-	log.Info("Starting server", slog.String("env", env))
+	logger := sl.SetUpLogger(env)
+	logger.Info("Starting server", slog.String("env", env))
 
 	storage, err := postgre.New()
 	if err != nil{
-		log.Error("failed to create storage", sl.Err(err))
+		logger.Error("failed to create storage", sl.Err(err))
 		os.Exit(1)
 	}
 	_ = storage
-	log.Info("Storage initialized")
+	logger.Info("Storage initialized")
 
 	if repositories.CheckExercisesExist(&storage){
-		log.Info("Exercises exist")
+		logger.Info("Exercises exist")
 	}else{
 		if err := fetchAndStoreExercises(&storage); err != nil{
-			log.Error("Failed to fetch exercises", sl.Err(err))
+			logger.Error("Failed to fetch exercises", sl.Err(err))
 		}
-		log.Info("Exercises fetched successfully")
+		logger.Info("Exercises fetched successfully")
 	}
 	userStorage := repositories.NewUserRepository(storage.GetDB())
 	userService := services.NewUserService(userStorage)
-  
+	
+	authService := services.NewAuthService(userStorage)
+
 	router := gin.Default()
   
 	router.POST("/register", handlers.RegisterUserHandler(userService))
+	router.POST("/login", handlers.LoginUserHandler(authService))
+
   
 	if err := router.Run(":8080"); err != nil {
-	  log.Error("Failed to start server:", sl.Err(err))
+	  logger.Error("Failed to start server:", sl.Err(err))
 	}
 }
 
