@@ -20,7 +20,7 @@ type ExerciseEntry struct {
 type ExerciseAPI struct{
 	Name         string    `json:"name"`
 	Type         string    `json:"type"`
-	MuscleGroup  string    `json:"target"` 
+	MuscleGroup  string    `json:"muscle"` 
 	Equipment    string    `json:"equipment"`
 	Difficulty   string    `json:"difficulty"`
 	Instruction  string    `json:"instructions"`
