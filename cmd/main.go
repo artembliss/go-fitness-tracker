@@ -8,8 +8,10 @@ import (
 
 	"github.com/artembliss/go-fitness-tracker/internal/handlers"
 	"github.com/artembliss/go-fitness-tracker/internal/repositories"
+	"github.com/artembliss/go-fitness-tracker/internal/services"
 	"github.com/artembliss/go-fitness-tracker/logger/sl"
 	"github.com/artembliss/go-fitness-tracker/storage/postgre"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -33,6 +35,16 @@ func main() {
 			log.Error("Failed to fetch exercises", sl.Err(err))
 		}
 		log.Info("Exercises fetched successfully")
+	}
+	userStorage := repositories.NewUserRepository(storage.GetDB())
+	userService := services.NewUserService(userStorage)
+  
+	router := gin.Default()
+  
+	router.POST("/register", handlers.RegisterUserHandler(userService))
+  
+	if err := router.Run(":8080"); err != nil {
+	  log.Error("Failed to start server:", sl.Err(err))
 	}
 }
 
