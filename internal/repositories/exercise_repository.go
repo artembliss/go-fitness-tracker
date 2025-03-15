@@ -5,14 +5,22 @@ import (
 	"log"
 
 	"github.com/artembliss/go-fitness-tracker/internal/models"
-	"github.com/artembliss/go-fitness-tracker/storage/postgre"
+	"github.com/jmoiron/sqlx"
 )
 
-func CheckExercisesExist(s *postgre.Storage) bool {
+type ExerciseRepository struct {
+	db *sqlx.DB
+}
+
+func NewExerciseRepository(db *sqlx.DB) *ExerciseRepository {
+	return &ExerciseRepository{db: db}
+}
+
+func (r *ExerciseRepository) CheckExercisesExist() bool {
 	var count int
 
 	CheckQuery := `SELECT COUNT(*) FROM exercises`
-	err := s.GetDB().Get(&count, CheckQuery)
+	err := r.db.Get(&count, CheckQuery)
 	if err != nil {
 		log.Println("Failed to check storage:", err)
 		return false
@@ -20,11 +28,11 @@ func CheckExercisesExist(s *postgre.Storage) bool {
 	return count > 0
 }
 
-func SaveExercisesToDB(s *postgre.Storage, exercises []models.ExerciseAPI) (error){
+func (r *ExerciseRepository) SaveExercisesToDB(exercises []models.ExerciseAPI) (error){
 	const op = "internal.handlers.SaveExercisesToDB"
 
 	for _, ex := range exercises{
-		_, err := s.GetDB().Exec(`
+		_, err := r.db.Exec(`
 		INSERT INTO exercises (name, type, muscle_group, equipment, difficulty, instruction)
 		VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (name) DO NOTHING`,
 		ex.Name, ex.Type, ex.MuscleGroup, ex.Equipment, ex.Difficulty, ex.Instruction)
