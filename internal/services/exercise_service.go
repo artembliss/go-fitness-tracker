@@ -13,11 +13,11 @@ import (
 )
 
 type ExerciseService struct{
-	Repo *repositories.ExerciseRepository
+	ExerciseRepo *repositories.ExerciseRepository
 }
 
 func NewExerciseService(repo *repositories.ExerciseRepository) *ExerciseService {
-	return &ExerciseService{Repo: repo}
+	return &ExerciseService{ExerciseRepo: repo}
 }
 
 func (s *ExerciseService) FetchExercisesByMuscle(muscle string) ([]models.ExerciseAPI, error) {
@@ -75,13 +75,23 @@ func (s *ExerciseService) FetchAllExercises() ([]models.ExerciseAPI, error) {
 }
 
 func (s *ExerciseService) FetchAndStoreExercises() (error) {
-	op := "main.fetchAndStoreExercises"
+	op := "internal.servises.fetchAndStoreExercises"
 	exercises, err := s.FetchAllExercises()
 	if err != nil {
 		return fmt.Errorf("%s, failed loading exercises: %w", op, err)
 	}
-	if err := s.Repo.SaveExercisesToDB(exercises); err != nil {
+	if err := s.ExerciseRepo.SaveExercisesToDB(exercises); err != nil {
 		return fmt.Errorf("%s, failed storing exercises: %w", op, err)
 	}
 	return nil
+}
+
+func (s *ExerciseService) GetAllExercises() ([]models.Exercise, error){
+	op := "internal.servises.GetAllExercisesService"
+
+	exercises, err := s.ExerciseRepo.GetAllExercises()
+	if err != nil{
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return exercises, nil
 }

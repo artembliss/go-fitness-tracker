@@ -2,15 +2,11 @@ package handlers
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/artembliss/go-fitness-tracker/internal/models"
 	"github.com/artembliss/go-fitness-tracker/internal/services"
 	"github.com/gin-gonic/gin"
 )
-
-var jwtSecretKey = []byte(os.Getenv("JWT_KEY"))
-
 
 func RegisterUserHandler(s *services.UserService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {

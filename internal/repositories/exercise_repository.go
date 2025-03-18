@@ -43,3 +43,17 @@ func (r *ExerciseRepository) SaveExercisesToDB(exercises []models.ExerciseAPI) (
 	return nil
 }
 
+func (r *ExerciseRepository) GetAllExercises() ([]models.Exercise, error){
+	op := "internal.handlers.GetAllExercises"
+
+	var exercises []models.Exercise
+
+	getAllExercisesQuery := `SELECT id, name, type, muscle_group, equipment, difficulty, instruction FROM exercises`
+	if err := r.db.Select(&exercises, getAllExercisesQuery); err != nil{
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	if len(exercises) == 0{
+		return nil, fmt.Errorf("%s: storage is empty", op)
+	}
+	return exercises, nil
+}

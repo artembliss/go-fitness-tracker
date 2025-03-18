@@ -50,7 +50,9 @@ func main() {
 	router.POST("/register", handlers.RegisterUserHandler(userService))
 	router.POST("/login", handlers.LoginUserHandler(authService))
 
-  
+	router.GET("/exercises", handlers.GetAllExercisesHandler(exerciseService))
+
+
 	if err := router.Run(":8080"); err != nil {
 	  logger.Error("Failed to start server:", sl.Err(err))
 	}
