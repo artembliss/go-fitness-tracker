@@ -95,3 +95,17 @@ func (s *ExerciseService) GetAllExercises() ([]models.Exercise, error){
 	}
 	return exercises, nil
 }
+
+func (s *ExerciseService) GetExercisesByID(id int) ([]models.Exercise, error){
+	op := "internal.servises.GetExercisesByID"
+
+	if id == 0{
+		return nil, fmt.Errorf("%s: id can not be 0", op)
+	}
+
+	exercises, err := s.ExerciseRepo.GetExercisesByID(id)
+	if err != nil{
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return exercises, nil
+}

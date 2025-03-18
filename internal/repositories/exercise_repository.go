@@ -57,3 +57,19 @@ func (r *ExerciseRepository) GetAllExercises() ([]models.Exercise, error){
 	}
 	return exercises, nil
 }
+
+func (r *ExerciseRepository) GetExercisesByID(id int) ([]models.Exercise, error){
+	op := "internal.handlers.GetAllExercises"
+
+	var exercises []models.Exercise
+
+	getAllExercisesQuery := `SELECT id, name, type, muscle_group, equipment, difficulty, instruction FROM exercises
+	WHERE ID = $1`
+	if err := r.db.Select(&exercises, getAllExercisesQuery, id); err != nil{
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	if len(exercises) == 0{
+		return nil, fmt.Errorf("%s: Invalid id", op)
+	}
+	return exercises, nil
+}

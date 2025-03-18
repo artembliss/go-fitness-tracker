@@ -51,6 +51,7 @@ func main() {
 	router.POST("/login", handlers.LoginUserHandler(authService))
 
 	router.GET("/exercises", handlers.GetAllExercisesHandler(exerciseService))
+	router.GET("/exercises/:id", handlers.GetExerciseByIdHandler(exerciseService))
 
 
 	if err := router.Run(":8080"); err != nil {
