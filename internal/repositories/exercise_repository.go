@@ -29,7 +29,7 @@ func (r *ExerciseRepository) CheckExercisesExist() bool {
 }
 
 func (r *ExerciseRepository) SaveExercisesToDB(exercises []models.ExerciseAPI) (error){
-	const op = "internal.handlers.SaveExercisesToDB"
+	const op = "internal.repositories.SaveExercisesToDB"
 
 	for _, ex := range exercises{
 		_, err := r.db.Exec(`
@@ -44,7 +44,7 @@ func (r *ExerciseRepository) SaveExercisesToDB(exercises []models.ExerciseAPI) (
 }
 
 func (r *ExerciseRepository) GetAllExercises() ([]models.Exercise, error){
-	op := "internal.handlers.GetAllExercises"
+	op := "internal.repositories.GetAllExercises"
 
 	var exercises []models.Exercise
 
@@ -55,5 +55,79 @@ func (r *ExerciseRepository) GetAllExercises() ([]models.Exercise, error){
 	if len(exercises) == 0{
 		return nil, fmt.Errorf("%s: storage is empty", op)
 	}
+	
 	return exercises, nil
+}
+
+func (r *ExerciseRepository) GetExercisesByID(id int) (models.Exercise, error){
+	op := "internal.repositories.GetExercisesByID"
+
+	var exercise models.Exercise
+
+	getAllExercisesQuery := `SELECT id, name, type, muscle_group, equipment, difficulty, instruction FROM exercises
+	WHERE ID = $1`
+	if err := r.db.Select(&exercise, getAllExercisesQuery, id); err != nil{
+		return models.Exercise{}, fmt.Errorf("%s: %w", op, err)
+	}
+	if exercise == (models.Exercise{}){
+		return models.Exercise{}, fmt.Errorf("%s: Invalid id", op)
+	}
+
+	return exercise, nil
+}
+
+func (r *ExerciseRepository) GetExercisesByName(id string) (models.Exercise, error){
+	op := "internal.repositories.GetExercisesByName"
+
+	var exercise models.Exercise
+
+	getExercisesByNameQuery := `SELECT id, name, type, muscle_group, equipment, difficulty, instruction FROM exercises
+	WHERE name = $1`
+	if err := r.db.Get(&exercise, getExercisesByNameQuery, id); err != nil{
+		return models.Exercise{}, fmt.Errorf("%s: %w", op, err)
+	}
+	
+	return exercise, nil
+}
+
+func (r *ExerciseRepository) GetExercisesByType(typeEx string) ([]models.Exercise, error){
+	op := "internal.repositories.GetExercisesByType"
+
+	var exercises []models.Exercise
+
+	getExercisesByNameQuery := `SELECT id, name, type, muscle_group, equipment, difficulty, instruction FROM exercises
+	WHERE type = $1`
+	if err := r.db.Select(&exercises, getExercisesByNameQuery, typeEx); err != nil{
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	
+	return exercises, nil	
+}
+
+func (r *ExerciseRepository) GetExercisesByMuscleGroup(muscleGroup string) ([]models.Exercise, error){
+	op := "internal.repositories.GetExercisesByMuscleGroup"
+
+	var exercises []models.Exercise
+
+	getExercisesByNameQuery := `SELECT id, name, type, muscle_group, equipment, difficulty, instruction FROM exercises
+	WHERE muscle_group = $1`
+	if err := r.db.Select(&exercises, getExercisesByNameQuery, muscleGroup); err != nil{
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	
+	return exercises, nil	
+}
+
+func (r *ExerciseRepository) GetExercisesByDifficulty(difficulty string) ([]models.Exercise, error){
+	op := "internal.repositories.GetExercisesByDifficulty"
+
+	var exercises []models.Exercise
+
+	getExercisesByNameQuery := `SELECT id, name, type, muscle_group, equipment, difficulty, instruction FROM exercises
+	WHERE Difficulty = $1`
+	if err := r.db.Select(&exercises, getExercisesByNameQuery, difficulty); err != nil{
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	
+	return exercises, nil	
 }

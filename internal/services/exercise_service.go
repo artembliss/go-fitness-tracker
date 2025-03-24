@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/artembliss/go-fitness-tracker/internal/models"
 	"github.com/artembliss/go-fitness-tracker/internal/repositories"
@@ -19,6 +20,8 @@ type ExerciseService struct{
 func NewExerciseService(repo *repositories.ExerciseRepository) *ExerciseService {
 	return &ExerciseService{ExerciseRepo: repo}
 }
+
+type ServiceFunc func(param ...interface{}) (interface{}, error)
 
 func (s *ExerciseService) FetchExercisesByMuscle(muscle string) ([]models.ExerciseAPI, error) {
 	op := "services.exercise.FetchExercisesByMuscle"
@@ -93,5 +96,93 @@ func (s *ExerciseService) GetAllExercises() ([]models.Exercise, error){
 	if err != nil{
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+	return exercises, nil
+}
+
+func (s *ExerciseService) GetExercisesByID(param ...interface{}) (interface{}, error){
+	op := "internal.servises.GetExercisesByID"
+
+	idStr, ok := param[0].(string)
+	if !ok{
+        return nil, fmt.Errorf("expected id to be string, got %T", param[0])
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil{
+		return nil, fmt.Errorf("invalid id: %w", err)
+	}
+	if id == 0{
+		return nil, fmt.Errorf("%s: id can not be 0", op)
+	}
+
+	exercise, err := s.ExerciseRepo.GetExercisesByID(id)
+	if err != nil{
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return exercise, nil
+}
+
+func (s *ExerciseService) GetExercisesByName(param ...interface{}) (interface{}, error){
+	op := "internal.servises.GetExercisesByName"
+
+	name, ok := param[0].(string)
+	if !ok{
+        return nil, fmt.Errorf("expected name to be string, got %T", param[0])
+	}
+
+	exercise, err := s.ExerciseRepo.GetExercisesByName(name)
+	if err != nil{
+		return models.Exercise{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return exercise, nil
+}
+
+func (s *ExerciseService) GetExercisesByType(param ...interface{}) (interface{}, error){
+	op := "internal.servises.GetExercisesByType"
+
+	typeEx, ok := param[0].(string)
+	if !ok{
+        return nil, fmt.Errorf("expected type to be string, got %T", param[0])
+	}
+
+	exercises, err := s.ExerciseRepo.GetExercisesByType(typeEx)
+	if err != nil{
+		return models.Exercise{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return exercises, nil
+}
+
+func (s *ExerciseService) GetExercisesByMuscleGroup(param ...interface{}) (interface{}, error){
+	op := "internal.servises.GetExercisesByMuscleGroup"
+
+	muscleGroup, ok := param[0].(string)
+	if !ok{
+        return nil, fmt.Errorf("expected muscle to be string, got %T", param[0])
+	}
+
+	exercises, err := s.ExerciseRepo.GetExercisesByMuscleGroup(muscleGroup)
+	if err != nil{
+		return models.Exercise{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return exercises, nil
+}
+
+func (s *ExerciseService) GetExercisesByDifficulty(param ...interface{}) (interface{}, error){
+	op := "internal.servises.GetExercisesByDifficulty"
+
+	difficulty, ok := param[0].(string)
+	if !ok{
+        return nil, fmt.Errorf("expected difficulty to be string, got %T", param[0])
+	}
+
+	exercises, err := s.ExerciseRepo.GetExercisesByDifficulty(difficulty)
+	if err != nil{
+		return models.Exercise{}, fmt.Errorf("%s: %w", op, err)
+	}
+
 	return exercises, nil
 }
