@@ -17,6 +17,20 @@ type ExerciseEntry struct {
 	Weight     []float64 `json:"weight" db:"weight"`
 }
 
+type ExerciseRequestCreate  struct {
+    Name   string `json:"name"`
+    Sets   int    `json:"sets"`
+    Reps   int    `json:"reps"`
+    Weight int    `json:"weight"`
+}
+
+type ExerciseProgramDB struct {
+    ExerciseID int    `db:"exercise_id"`
+    Sets       int    `db:"sets"`
+    Reps       int    `db:"reps"`
+    Weight     int    `db:"weight"`
+}
+
 type ExerciseAPI struct{
 	Name         string    `json:"name"`
 	Type         string    `json:"type"`

@@ -17,11 +17,11 @@ type Workout struct {
 
 type RequestCreateWorkout struct {
 	ProgramName string          `json:"program_name"`
-	Exercises   []ExerciseEntry `json:"exercises"`
+	Exercises   []ExerciseRequestCreate `json:"exercises"`
 }
 
 type RequestUpdateWorkout struct {
 	ID         int             `json:"id"`
 	ProgramName string         `json:"program_name"`
-	Exercises  []ExerciseEntry `json:"exercises"`
+	Exercises  []ExerciseRequestCreate`json:"exercises"`
 }

@@ -12,11 +12,11 @@ type Program struct {
 
 type RequestCreateProgram struct {
 	Name      string          `json:"name"`
-	Exercises []ExerciseEntry `json:"exercises"`
+	Exercises []ExerciseRequestCreate `json:"exercises"`
 }
 
 type RequestUpdateProgram struct {
 	ID        int          `json:"id"`
 	Name      string          `json:"name"`
-	Exercises []ExerciseEntry `json:"exercises"`
+	Exercises []ExerciseRequestCreate `json:"exercises"`
 }
