@@ -41,3 +41,13 @@ func (s *UserService) RegisterUserService(reqUser *models.RequestCreateUser) (mo
 
 	return user, nil
 }
+
+func (s *UserService) GetUserByEmail(email string) (*models.User, error){
+	op := "services.GetUserIdByEmail"
+	
+	user, err := s.UserRepo.GetUserByEmail(email)
+	if err != nil{
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return user, nil
+}

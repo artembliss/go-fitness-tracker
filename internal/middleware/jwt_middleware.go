@@ -4,11 +4,12 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/artembliss/go-fitness-tracker/internal/services"
 	"github.com/artembliss/go-fitness-tracker/pkg/auth"
 	"github.com/gin-gonic/gin"
 )
 
-func JWTMiddleware() gin.HandlerFunc{
+func JWTMiddleware(s *services.UserService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == ""{
@@ -29,7 +30,17 @@ func JWTMiddleware() gin.HandlerFunc{
             ctx.Abort()
             return
         }
-        ctx.Set("email", claims.Subject)
+
+		email := claims.Subject
+
+        user, err := s.GetUserByEmail(email)
+        if err != nil {
+            ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+            ctx.Abort()
+            return
+        }
+		ctx.Set("userID", user.ID)
+
         ctx.Next()
 	}
 
