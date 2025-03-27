@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/artembliss/go-fitness-tracker/internal/handlers"
+	"github.com/artembliss/go-fitness-tracker/internal/middleware"
 	"github.com/artembliss/go-fitness-tracker/internal/repositories"
 	"github.com/artembliss/go-fitness-tracker/internal/services"
 	"github.com/artembliss/go-fitness-tracker/pkg/logger/sl"
@@ -28,10 +29,14 @@ func main() {
 
 	UserRepository := repositories.NewUserRepository(storage.GetDB())
 	ExerciseRepository := repositories.NewExerciseRepository(storage.GetDB())
+	ProgramRepository := repositories.NewProgramRepository(storage.GetDB())
 
 	userService := services.NewUserService(UserRepository)
 	authService := services.NewAuthService(UserRepository)
 	exerciseService := services.NewExerciseService(ExerciseRepository)
+	programService := services.NewProgramService(ProgramRepository)
+
+	authMiddleware := middleware.JWTMiddleware(userService)
 
 	logger.Info("Storage initialized")
 
@@ -52,6 +57,11 @@ func main() {
 
 	router.GET("/exercises", handlers.GetAllExercisesHandler(exerciseService))
 	router.GET("/exercises/search", handlers.GetExerciseByParamHandler(exerciseService))
+
+	protected := router.Group("/", authMiddleware)
+	{
+		protected.POST("/programs", handlers.CreateProgramHandler(programService))
+	}
 
 	if err := router.Run(":8080"); err != nil {
 	  logger.Error("Failed to start server:", sl.Err(err))
