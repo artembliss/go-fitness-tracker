@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Program struct {
 	ID        int          `json:"id" db:"id"`
@@ -8,6 +10,22 @@ type Program struct {
 	Name      string          `json:"name" db:"name"`
 	Exercises []ExerciseProgramDB `json:"exercises" db:"exercises"`
 	CreatedAt time.Time       `json:"-" db:"created_at"`
+}
+
+type ProgramDB struct {
+	ID        int          `db:"id"`
+	UserID    int          `db:"user_id"`
+	Name      string       `db:"name"`
+	Exercises []byte       `db:"exercises"`
+	CreatedAt time.Time    `db:"created_at"`
+}
+
+type RequestGetProgram struct {
+	ID        int                     `json:"id"`
+	UserID    int                     `json:"user_id"`
+	Name      string                  `json:"name"`
+	Exercises []ExerciseRequestCreate `json:"exercises"`
+	CreatedAt time.Time               `json:"-"`
 }
 
 type RequestCreateProgram struct {

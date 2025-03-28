@@ -44,3 +44,16 @@ func CreateProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 		ctx.JSON(http.StatusOK, createdID)
 	}
 }
+
+func GetProgramsHandler(s *services.ProgramService) gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		userID := ctx.GetInt("userID")
+
+		programs, err := s.GetPrograms(userID)
+		if err != nil{
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		}
+
+		ctx.JSON(http.StatusOK, programs)
+	}
+}
