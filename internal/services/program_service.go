@@ -69,12 +69,12 @@ func (s *ProgramService) MapToDBExercises(regEx []models.ExerciseRequestCreate, 
 	return result, notFound
 }
 
-func (s *ProgramService) GetPrograms(userId int) (*[]models.RequestGetProgram, error){
+func (s *ProgramService) GetProgram(programID int, userID int) (*[]models.RequestGetProgram, error){
 	const op = "internal.servises.GetPrograms"
 
 	var programs []models.RequestGetProgram 
 
-	programsDB, err := s.ProgramRepo.GetProgramsByID(userId)
+	programsDB, err := s.ProgramRepo.GetProgramByID(programID, userID)
 	if err != nil{
 		return nil, fmt.Errorf("%s: failed to get programs by id: %w", op, err)
 	}
@@ -153,4 +153,13 @@ func (s *ProgramService) BuildResponseExercises(programsDB []models.Program) ([]
 		})
 	}
 	return programsResp, nil
+}
+
+func (s *ProgramService) DeleteProgram(programID int, userID int) (int, error){
+	const op = "internal.servises.DeleteProgram"
+	deletedID, err := s.ProgramRepo.DeleteProgram(programID, userID)
+	if err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+	return deletedID, nil
 }

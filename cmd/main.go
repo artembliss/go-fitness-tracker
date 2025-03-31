@@ -61,8 +61,8 @@ func main() {
 	protected := router.Group("/", authMiddleware)
 	{
 		protected.POST("/programs", handlers.CreateProgramHandler(programService))
-		protected.GET("/programs", handlers.GetProgramsHandler(programService))
-
+		protected.GET("/programs", handlers.GetProgramHandler(programService))
+		protected.DELETE("/programs", handlers.DeleteProgramHandler(programService))
 	}
 
 	if err := router.Run(":8080"); err != nil {

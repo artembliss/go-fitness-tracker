@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/artembliss/go-fitness-tracker/internal/models"
 	"github.com/artembliss/go-fitness-tracker/internal/services"
@@ -45,15 +46,55 @@ func CreateProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	}
 }
 
-func GetProgramsHandler(s *services.ProgramService) gin.HandlerFunc{
+func GetProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		userID := ctx.GetInt("userID")
 
-		programs, err := s.GetPrograms(userID)
+		programIdStr := ctx.Query("id")
+		if len(programIdStr) == 0{
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "program id not set"})
+		}
+
+		programID, err := strconv.Atoi(programIdStr)
+		if err != nil{
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid item ID"})
+		}
+
+		programs, err := s.GetProgram(programID, userID)
 		if err != nil{
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		}
 
 		ctx.JSON(http.StatusOK, programs)
+	}
+}
+
+func DeleteProgramHandler(s *services.ProgramService) gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		userIdRaw, exist := ctx.Get("userID")
+		if !exist{
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+
+		userID, ok := userIdRaw.(int)
+		if !ok {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "userID is not an integer"})
+			return
+		}
+
+		idStr := ctx.Query("id")
+		programID, err := strconv.Atoi(idStr)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid item ID"})
+			return
+		}
+
+		deletedID, err := s.DeleteProgram(programID, userID)
+		if err != nil{
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+
+		ctx.JSON(http.StatusOK, deletedID)
 	}
 }
