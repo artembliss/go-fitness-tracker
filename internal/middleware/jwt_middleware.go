@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"net/http"
+	"net/http" 
 	"strings"
 
 	"github.com/artembliss/go-fitness-tracker/internal/services"

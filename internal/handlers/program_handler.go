@@ -36,7 +36,7 @@ func CreateProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 			Exercises: exercisesToSave,	
 		}
 
-		createdID, err := s.SaveProgram(program)
+		createdID, err := s.CreateProgram(program)
 		if err != nil{
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})		
 			return

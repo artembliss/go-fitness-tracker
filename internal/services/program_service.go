@@ -15,9 +15,9 @@ func NewProgramService(repo *repositories.ProgramRepository) *ProgramService{
 	return &ProgramService{ProgramRepo: repo}
 }
 
-func (s *ProgramService) SaveProgram(program models.Program) (int, error){
+func (s *ProgramService) CreateProgram(program models.Program) (int, error){
 	const op = "internal.servises.SaveProgram"
-	
+
 	id, err := s.ProgramRepo.SaveProgram(program)
 	if err != nil{
 		return 0, fmt.Errorf("%s: %w", op, err)
@@ -26,7 +26,7 @@ func (s *ProgramService) SaveProgram(program models.Program) (int, error){
 	return id, nil
 }
 
-func (s *ProgramService) GetNameToID(exercises []models.ExerciseRequestCreate) (map[string]int, error){
+func (s *ProgramService) GetNameToID(exercises []models.ExerciseRequest) (map[string]int, error){
 	const op = "internal.servises.GetNameToID"
 	names := make([]string, len(exercises))
 
@@ -48,7 +48,7 @@ func (s *ProgramService) GetNameToID(exercises []models.ExerciseRequestCreate) (
 	return exerciseMap, nil
 }
 
-func (s *ProgramService) MapToDBExercises(regEx []models.ExerciseRequestCreate, nameToDB map[string]int) ([]models.ExerciseProgramDB, []string){
+func (s *ProgramService) MapToDBExercises(regEx []models.ExerciseRequest, nameToDB map[string]int) ([]models.ExerciseProgramDB, []string){
 	var result []models.ExerciseProgramDB
 	var notFound []string
 
@@ -69,21 +69,22 @@ func (s *ProgramService) MapToDBExercises(regEx []models.ExerciseRequestCreate, 
 	return result, notFound
 }
 
-func (s *ProgramService) GetProgram(programID int, userID int) (*[]models.RequestGetProgram, error){
+func (s *ProgramService) GetProgram(programID int, userID int) (*models.RequestGetProgram, error){
 	const op = "internal.servises.GetPrograms"
 
-	var programs []models.RequestGetProgram 
+	var program *models.RequestGetProgram
 
-	programsDB, err := s.ProgramRepo.GetProgramByID(programID, userID)
+	programDB, err := s.ProgramRepo.GetProgramByID(programID, userID)
 	if err != nil{
 		return nil, fmt.Errorf("%s: failed to get programs by id: %w", op, err)
 	}
 
-	programs, err = s.BuildResponseExercises(programsDB)
+	program, err = s.BuildResponseExercises(*programDB)
 	if err != nil{
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	return &programs, nil
+
+	return program, nil
 }
 
 func (s *ProgramService) GetIdToName(exercises []models.ExerciseProgramDB) (map[int]string, error){
@@ -108,8 +109,8 @@ func (s *ProgramService) GetIdToName(exercises []models.ExerciseProgramDB) (map[
 	return exerciseMap, nil
 }
 
-func (s *ProgramService) MapToResponseExercises(dbEx []models.ExerciseProgramDB, idToName map[int]string) (*[]models.ExerciseRequestCreate, []int){
-	var result []models.ExerciseRequestCreate
+func (s *ProgramService) MapToResponseExercises(dbEx []models.ExerciseProgramDB, idToName map[int]string) (*[]models.ExerciseRequest, []int){
+	var result []models.ExerciseRequest
 	var notFound []int
 
 	for _, ex := range dbEx{
@@ -118,7 +119,7 @@ func (s *ProgramService) MapToResponseExercises(dbEx []models.ExerciseProgramDB,
             notFound = append(notFound, ex.ExerciseID)
             continue
         }
-		result = append(result, models.ExerciseRequestCreate{
+		result = append(result, models.ExerciseRequest{
             Name: name,
             Sets:       ex.Sets,
             Reps:       ex.Reps,
@@ -129,30 +130,28 @@ func (s *ProgramService) MapToResponseExercises(dbEx []models.ExerciseProgramDB,
 	return &result, notFound
 }
 
-func (s *ProgramService) BuildResponseExercises(programsDB []models.Program) ([]models.RequestGetProgram, error){
+func (s *ProgramService) BuildResponseExercises(programDB models.Program) (*models.RequestGetProgram, error){
 	const op = "internal.servises.BuildResponseExercises"
-	var programsResp []models.RequestGetProgram
 
-	for _, programDB := range programsDB{
-		idToName, err := s.GetIdToName(programDB.Exercises)
-		if err != nil{
-			return nil, fmt.Errorf("%s: %w", op, err)
-		}
+	idToName, err := s.GetIdToName(programDB.Exercises)
+	if err != nil{
+	 return nil, fmt.Errorf("%s: %w", op, err)
+	}
 
-		exercisesResp, notFound := s.MapToResponseExercises(programDB.Exercises, idToName)
-		if len(notFound) > 0{
-			return nil, fmt.Errorf("%s: some exercises not found: %v", op, notFound)
-		}
+	exercisesResp, notFound := s.MapToResponseExercises(programDB.Exercises, idToName)
+	if len(notFound) > 0{
+		return nil, fmt.Errorf("%s: some exercises not found: %v", op, notFound)
+	}
 
-		programsResp = append(programsResp, models.RequestGetProgram{
+	programsResp := models.RequestGetProgram{
 			ID: programDB.ID,
 			UserID: programDB.UserID,
 			Name: programDB.Name,
 			Exercises: *exercisesResp,
 			CreatedAt: programDB.CreatedAt,
-		})
-	}
-	return programsResp, nil
+		}
+	
+	return &programsResp, nil
 }
 
 func (s *ProgramService) DeleteProgram(programID int, userID int) (int, error){

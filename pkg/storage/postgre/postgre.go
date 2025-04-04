@@ -56,7 +56,6 @@ func New() (Storage, error){
 	id SERIAL PRIMARY KEY,
 	user_id INT REFERENCES users(id) ON DELETE CASCADE,  
 	name VARCHAR(255) NOT NULL,
-	exercises JSONB NOT NULL,
 	created_at TIMESTAMP DEFAULT now() NOT NULL
 	)`
 	if _, err := db.Exec(createTableProgramsQuery); err != nil{
@@ -88,6 +87,30 @@ func New() (Storage, error){
 	difficulty VARCHAR(255),
 	instruction TEXT)`
 	if _, err := db.Exec(createTableExercisesQuery); err != nil{
+		return Storage{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	createTableExercisesProgramQuery := `
+	CREATE TABLE IF NOT EXISTS exercises_program(
+	id SERIAL PRIMARY KEY,
+	program_id INT REFERENCES programs(id) ON DELETE CASCADE,
+	exercise_id INT REFERENCES exercises(id) ON DELETE CASCADE,
+	sets INTEGER NOT NULL,
+	reps INTEGER NOT NULL,
+	weight DECIMAL(6,3))`
+	if _, err := db.Exec(createTableExercisesProgramQuery); err != nil{
+		return Storage{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	createTableExercisesEntryQuery := `
+	CREATE TABLE IF NOT EXISTS exercises_entry(
+	id SERIAL PRIMARY KEY,
+	workout_id INT REFERENCES workouts(id) ON DELETE CASCADE,
+	exercise_id INT REFERENCES exercises(id) ON DELETE CASCADE,
+	sets INT[] NOT NULL,
+	reps INT[] NOT NULL,
+	weight DECIMAL(6,3)[])`
+	if _, err := db.Exec(createTableExercisesEntryQuery); err != nil{
 		return Storage{}, fmt.Errorf("%s: %w", op, err)
 	}
 	return Storage{db: db}, nil

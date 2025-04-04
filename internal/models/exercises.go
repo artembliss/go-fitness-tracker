@@ -1,7 +1,7 @@
 package models
 
 type Exercise struct{
-	ID           int    `db:"id"`
+	ID           int       `db:"id"`
 	Name         string    `db:"name"`
 	Type         string    `db:"type"`
 	MuscleGroup  string    `db:"muscle_group"` 
@@ -11,24 +11,35 @@ type Exercise struct{
 }
 
 type ExerciseEntry struct {
-	ExerciseID int    `json:"exercise_id" db:"exercise_id"`
-	Sets       int       `json:"sets" db:"sets"`
-	Reps       []int     `json:"reps" db:"reps"`
-	Weight     []float64 `json:"weight" db:"weight"`
+	ID         int       `db:"id"`
+	ProgramID  int       `db:"program_id"`
+	ExerciseID int       `db:"exercise_id"`
+	Sets       int       `db:"sets"`
+	Reps       []int     `db:"reps"`
+	Weight     []float64 `db:"weight"`
 }
 
-type ExerciseRequestCreate  struct {
+type ExerciseRequestEntry  struct {
+	ExerciseID int       `json:"exercise_id"`
+	Sets       int       `json:"sets"`
+	Reps       []int     `json:"reps"`
+	Weight     []float64 `json:"weight"`
+}
+
+type ExerciseRequest  struct {
     Name   string `json:"name"`
     Sets   int    `json:"sets"`
     Reps   int    `json:"reps"`
-    Weight int    `json:"weight"`
+    Weight float64    `json:"weight"`
 }
 
 type ExerciseProgramDB struct {
-    ExerciseID int    `db:"exercise_id"`
-    Sets       int    `db:"sets"`
-    Reps       int    `db:"reps"`
-    Weight     int    `db:"weight"`
+	ID         int     `db:"id"`
+	ProgramID  int     `db:"program_id"`
+    ExerciseID int     `db:"exercise_id"`
+    Sets       int     `db:"sets"`
+    Reps       int     `db:"reps"`
+    Weight     float64 `db:"weight"`
 }
 
 type ExerciseAPI struct{
