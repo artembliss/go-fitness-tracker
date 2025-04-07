@@ -26,6 +26,21 @@ func (s *ProgramService) CreateProgram(program models.Program) (int, error){
 	return id, nil
 }
 
+func (s *ProgramService) UpdateProgram(program models.Program, programID int) (int, error){
+	const op = "internal.servises.UpdateProgram"
+
+	if err := s.ProgramRepo.DeleteExercisesProgram(programID); err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)	
+	}
+
+	id, err := s.ProgramRepo.UpdateProgram(program, programID)
+	if err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return id, nil
+}
+
 func (s *ProgramService) GetNameToID(exercises []models.ExerciseRequest) (map[string]int, error){
 	const op = "internal.servises.GetNameToID"
 	names := make([]string, len(exercises))
@@ -157,8 +172,13 @@ func (s *ProgramService) BuildResponseExercises(programDB models.Program) (*mode
 func (s *ProgramService) DeleteProgram(programID int, userID int) (int, error){
 	const op = "internal.servises.DeleteProgram"
 	deletedID, err := s.ProgramRepo.DeleteProgram(programID, userID)
+	
 	if err != nil{
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
+	if err := s.ProgramRepo.DeleteExercisesProgram(programID); err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)	
+	}
+	
 	return deletedID, nil
 }

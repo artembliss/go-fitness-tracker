@@ -69,6 +69,51 @@ func GetProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	}
 }
 
+func UpdateProgramHandler(s *services.ProgramService) gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		var programUpdate models.RequestCreateProgram
+		
+		if err := ctx.ShouldBindJSON(&programUpdate); err != nil{
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})		
+			return	
+		}
+
+		idStr := ctx.Query("id")
+		programID, err := strconv.Atoi(idStr)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid item ID"})
+			return
+		}
+
+		nameToID, err := s.GetNameToID(programUpdate.Exercises)
+		if err != nil{
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to find exercises in storage"})
+			return
+		}
+
+		exercisesToSave, notFound := s.MapToDBExercises(programUpdate.Exercises, nameToID)
+		if len(notFound) > 0 {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "some exercises not found"})		
+			return
+		}
+
+		program := models.Program{
+			UserID: ctx.GetInt("userID"),
+			Name: programUpdate.Name,
+			Exercises: exercisesToSave,	
+		}
+
+		ID, err := s.UpdateProgram(program, programID)
+		if err != nil{
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})		
+			return
+		}
+		
+		ctx.JSON(http.StatusOK, ID)
+	}
+}
+
+//Delete row from exercises_program
 func DeleteProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		userIdRaw, exist := ctx.Get("userID")

@@ -63,7 +63,7 @@ func main() {
 		protected.POST("/programs", handlers.CreateProgramHandler(programService))
 		protected.GET("/programs", handlers.GetProgramHandler(programService))
 		protected.DELETE("/programs", handlers.DeleteProgramHandler(programService))
-		//protected.PATCH("/programs", handlers.UpdateProgramHandler(programService))
+		protected.PATCH("/programs", handlers.UpdateProgramHandler(programService))
 	}
 
 	if err := router.Run(":8080"); err != nil {

@@ -34,6 +34,24 @@ func (r *ProgramRepository) SaveProgram(program models.Program) (int, error){
 	return program.ID, nil
 }
 
+func (r *ProgramRepository) UpdateProgram(program models.Program, programID int) (int, error){
+	const op = "internal.repositories.UpdateProgram"
+
+	query := `UPDATE programs SET user_id = $1, name = $2, created_at = NOW()
+	          WHERE id = $3 AND user_id = $4
+			  RETURNING id`
+
+	if err := r.db.QueryRow(query, program.UserID, program.Name, programID, program.UserID).Scan(&program.ID); err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err := r.SaveExercisesProgram(program.ID, program.Exercises); err != nil{
+		return program.ID, fmt.Errorf("%s: failed to save program exercises: %w", op, err)
+	}
+	
+	return program.ID, nil
+}
+
 func (r *ProgramRepository) SaveExercisesProgram(programID int, exercises []models.ExerciseProgramDB) error {
 	const op = "internal.repositories.SaveExercisesProgram"
 
@@ -137,4 +155,14 @@ func (r *ProgramRepository) DeleteProgram(programID int, userID int) (int, error
 		return 0, fmt.Errorf("%s: You are not authorized to delete this program: %w", op, err)
 	}
 	return deletedID, nil
+}
+
+func (r *ProgramRepository) DeleteExercisesProgram(programID int) (error){
+	const op = "internal.repositories.DeleteExercisesProgram"
+	
+	query := `DELETE FROM exercises_program WHERE program_id = $1`
+	if _, err := r.db.Exec(query, programID); err != nil{
+		return fmt.Errorf("%s: You are not authorized to delete this program: %w", op, err)
+	}
+	return nil
 }
