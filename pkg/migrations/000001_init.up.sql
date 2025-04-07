@@ -1,4 +1,4 @@
-	CREATE TABLE users(
+CREATE TABLE IF NOT EXISTS users(
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	email VARCHAR(255) UNIQUE NOT NULL,
@@ -8,32 +8,47 @@
 	height INT,
 	weight FLOAT,
 	created_at TIMESTAMP DEFAULT now() NOT NULL
-    );
+);
 
-    CREATE TABLE programs(
-	id SERIAL PRIMARY KEY,
-	user_id INT REFERENCES users(id) ON DELETE CASCADE,  
-	name VARCHAR(255) NOT NULL,
-	exercises JSONB NOT NULL,
-	created_at TIMESTAMP DEFAULT now() NOT NULL
-	);
+CREATE TABLE IF NOT EXISTS programs(
+id SERIAL PRIMARY KEY,
+user_id INT REFERENCES users(id) ON DELETE CASCADE,  
+name VARCHAR(255) NOT NULL,
+created_at TIMESTAMP DEFAULT now() NOT NULL
+);
 
-    CREATE TABLE workouts(
-	id SERIAL PRIMARY KEY,
-	user_id INT REFERENCES users(id) ON DELETE CASCADE,
-	program_id INT REFERENCES programs(id) ON DELETE SET NULL,
-	date DATE NOT NULL,
-	exercises JSONB NOT NULL,
-	duration INT, 
-	calories FLOAT,
-	created_at TIMESTAMP DEFAULT now() NOT NULL
-	);
+CREATE TABLE IF NOT EXISTS workouts(
+id SERIAL PRIMARY KEY,
+user_id INT REFERENCES users(id) ON DELETE CASCADE,
+program_id INT REFERENCES programs(id) ON DELETE SET NULL,
+date DATE NOT NULL,
+exercises JSONB NOT NULL,
+duration INT, 
+calories FLOAT,
+created_at TIMESTAMP DEFAULT now() NOT NULL
+);
 
-    CREATE TABLE exercises(
-	id SERIAL PRIMARY KEY,
-	name VARCHAR(255) UNIQUE NOT NULL,
-	type VARCHAR(255),
-	muscle_group VARCHAR(50) NOT NULL,
-	equipment VARCHAR(255),
-	difficulty VARCHAR(255),
-	instruction TEXT);
+CREATE TABLE IF NOT EXISTS exercises(
+id SERIAL PRIMARY KEY,
+name VARCHAR(255) UNIQUE NOT NULL,
+type VARCHAR(255),
+muscle_group VARCHAR(50),
+equipment VARCHAR(255),
+difficulty VARCHAR(255),
+instruction TEXT);
+
+CREATE TABLE IF NOT EXISTS exercises_program(
+id SERIAL PRIMARY KEY,
+program_id INT REFERENCES programs(id) ON DELETE CASCADE,
+exercise_id INT REFERENCES exercises(id) ON DELETE CASCADE,
+sets INTEGER NOT NULL,
+reps INTEGER NOT NULL,
+weight DECIMAL(6,3));
+
+CREATE TABLE IF NOT EXISTS exercises_entry(
+id SERIAL PRIMARY KEY,
+workout_id INT REFERENCES workouts(id) ON DELETE CASCADE,
+exercise_id INT REFERENCES exercises(id) ON DELETE CASCADE,
+sets INT[] NOT NULL,
+reps INT[] NOT NULL,
+weight DECIMAL(6,3)[]);

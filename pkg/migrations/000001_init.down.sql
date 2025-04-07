@@ -1,9 +1,11 @@
--- Active: 1741506016516@@127.0.0.1@5433@trackerdb
-DROP TABLE users;
+DROP TABLE IF EXISTS users;
 
-DROP TABLE programs;
+DROP TABLE IF EXISTS programs;
 
-DROP TABLE workouts;
+DROP TABLE IF EXISTS workouts;
 
-DROP TABLE exercises;
+DROP TABLE IF EXISTS exercises;
 
+DROP TABLE IF EXISTS exercises_program;
+
+DROP TABLE IF EXISTS exercises_entry;
