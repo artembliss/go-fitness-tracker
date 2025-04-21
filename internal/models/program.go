@@ -31,9 +31,3 @@ type RequestCreateProgram struct {
 	Name      string          `json:"name"`
 	Exercises []ExerciseRequest `json:"exercises"`
 }
-
-type RequestUpdateProgram struct {
-	ID        int          `json:"id"`
-	Name      string          `json:"name"`
-	Exercises []ExerciseRequest `json:"exercises"`
-}

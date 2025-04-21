@@ -1,13 +1,13 @@
 CREATE TABLE IF NOT EXISTS users(
-	id SERIAL PRIMARY KEY,
-	name VARCHAR(255) NOT NULL,
-	email VARCHAR(255) UNIQUE NOT NULL,
-	password_hash TEXT NOT NULL,
-	age INT,
-	gender VARCHAR(20),
-	height INT,
-	weight FLOAT,
-	created_at TIMESTAMP DEFAULT now() NOT NULL
+id SERIAL PRIMARY KEY,
+name VARCHAR(255) NOT NULL,
+email VARCHAR(255) UNIQUE NOT NULL,
+password_hash TEXT NOT NULL,
+age INT,
+gender VARCHAR(20),
+height INT,
+weight FLOAT,
+created_at TIMESTAMP DEFAULT now() NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS programs(
@@ -22,8 +22,7 @@ id SERIAL PRIMARY KEY,
 user_id INT REFERENCES users(id) ON DELETE CASCADE,
 program_id INT REFERENCES programs(id) ON DELETE SET NULL,
 date DATE NOT NULL,
-exercises JSONB NOT NULL,
-duration INT, 
+duration BIGINT, 
 calories FLOAT,
 created_at TIMESTAMP DEFAULT now() NOT NULL
 );
@@ -49,6 +48,6 @@ CREATE TABLE IF NOT EXISTS exercises_entry(
 id SERIAL PRIMARY KEY,
 workout_id INT REFERENCES workouts(id) ON DELETE CASCADE,
 exercise_id INT REFERENCES exercises(id) ON DELETE CASCADE,
-sets INT[] NOT NULL,
+sets INTEGER NOT NULL,
 reps INT[] NOT NULL,
 weight DECIMAL(6,3)[]);
