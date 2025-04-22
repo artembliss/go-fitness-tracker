@@ -30,11 +30,13 @@ func main() {
 	UserRepository := repositories.NewUserRepository(storage.GetDB())
 	ExerciseRepository := repositories.NewExerciseRepository(storage.GetDB())
 	ProgramRepository := repositories.NewProgramRepository(storage.GetDB())
+	WorkoutRepository := repositories.NewWorkoutRepository(storage.GetDB())
 
 	userService := services.NewUserService(UserRepository)
 	authService := services.NewAuthService(UserRepository)
 	exerciseService := services.NewExerciseService(ExerciseRepository)
 	programService := services.NewProgramService(ProgramRepository)
+	workoutService := services.NewWorkoutService(WorkoutRepository)
 
 	authMiddleware := middleware.JWTMiddleware(userService)
 
@@ -64,6 +66,9 @@ func main() {
 		protected.GET("/programs", handlers.GetProgramHandler(programService))
 		protected.DELETE("/programs", handlers.DeleteProgramHandler(programService))
 		protected.PATCH("/programs", handlers.UpdateProgramHandler(programService))
+
+		protected.POST("/workouts", handlers.CreateWorkoutHandler(workoutService))
+		protected.GET("/workouts", handlers.GetWorkoutHandler(workoutService))
 	}
 
 	if err := router.Run(":8080"); err != nil {
