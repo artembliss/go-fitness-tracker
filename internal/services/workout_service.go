@@ -102,6 +102,21 @@ func (s *WorkoutService) BuildResponseWorkout(workoutDB models.Workout) (*models
 	return &workout, nil
 }
 
+func (s *WorkoutService) DeleteWorkout(workoutID int, userID int) (int, error){
+	const op = "internal.servises.DeleteWorkout"
+
+	deletedWorkoutId, err := s.WorkoutRepo.DeleteWorkout(workoutID, userID)
+	if err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err := s.WorkoutRepo.DeleteWorkoutExercises(workoutID); err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+	return deletedWorkoutId, nil
+}
+
+
 func (s *WorkoutService) MapToResponseExercises(dbEx []models.ExerciseEntry, idToName map[int]string) ([]models.ExerciseRequestEntry, []int) {
     var result []models.ExerciseRequestEntry
     var notFound []int
