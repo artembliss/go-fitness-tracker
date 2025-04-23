@@ -15,6 +15,7 @@ func CreateWorkoutHandler(s *services.WorkoutService) gin.HandlerFunc{
 		
 		if err := ctx.ShouldBindJSON(&workoutCreate); err != nil{
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
 		}
 
 		userIdRaw, exist := ctx.Get("userID")
@@ -32,6 +33,7 @@ func CreateWorkoutHandler(s *services.WorkoutService) gin.HandlerFunc{
 		workoutID, err := s.CreateWorkout(userID, workoutCreate)
 		if err != nil{
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 
 		ctx.JSON(http.StatusOK, workoutID)
@@ -44,11 +46,13 @@ func GetWorkoutHandler(s *services.WorkoutService) gin.HandlerFunc{
 		workoutIdStr := ctx.Query("id")
 		if len(workoutIdStr) == 0{
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "workout id is not set"})
+			return
 		}
 
 		workoutID, err := strconv.Atoi(workoutIdStr)
 		if err != nil{
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid workout id"})
+			return
 		}
 
 		userID := ctx.GetInt("userID")
@@ -56,6 +60,7 @@ func GetWorkoutHandler(s *services.WorkoutService) gin.HandlerFunc{
 		workout, err := s.GetWorkout(workoutID, userID)
 		if err != nil{
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
 		}
 
 		ctx.JSON(http.StatusOK, workout)
@@ -67,11 +72,13 @@ func DeleteWorkoutHandler(s *services.WorkoutService) gin.HandlerFunc{
 		idStr := ctx.Query("id")
 		if len(idStr) == 0{
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "workout id is not set"})
+			return
 		}
 
 		id, err := strconv.Atoi(idStr)
 		if err != nil{
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid workout id"})
+			return
 		}
 
 		userID := ctx.GetInt("userID")
@@ -79,6 +86,7 @@ func DeleteWorkoutHandler(s *services.WorkoutService) gin.HandlerFunc{
 		deletedWorkoutId, err := s.DeleteWorkout(id, userID)
 		if err != nil{
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
 		}
 
 		ctx.JSON(http.StatusOK, deletedWorkoutId)

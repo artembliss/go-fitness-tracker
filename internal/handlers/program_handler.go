@@ -53,16 +53,19 @@ func GetProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 		programIdStr := ctx.Query("id")
 		if len(programIdStr) == 0{
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "program id not set"})
+			return
 		}
 
 		programID, err := strconv.Atoi(programIdStr)
 		if err != nil{
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid item ID"})
+			return
 		}
 
 		programs, err := s.GetProgram(programID, userID)
 		if err != nil{
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
 		}
 
 		ctx.JSON(http.StatusOK, programs)
@@ -138,6 +141,7 @@ func DeleteProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 		deletedID, err := s.DeleteProgram(programID, userID)
 		if err != nil{
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
 
 		ctx.JSON(http.StatusOK, deletedID)
