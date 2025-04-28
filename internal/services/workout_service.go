@@ -58,6 +58,52 @@ func (s *WorkoutService) CreateWorkout(userID int, workoutCreate models.RequestC
 	return workoutID, nil
 }
 
+func (s *WorkoutService) UpdateWorkout(workoutID int, userID int, workoutUpdate models.RequestCreateWorkout) (int, error){
+	const op = "internal.servises.UpdateWorkout"
+
+	var workout models.Workout
+
+	programID, err := s.WorkoutRepo.GetProgramIdByName(workoutUpdate.ProgramName)
+	if err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err := s.WorkoutRepo.DeleteWorkoutExercises(workoutID); err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	nameToID, err := s.GetNameToID(workoutUpdate.Exercises)
+	if err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	exercisesEntryToSave, notFound := s.MapToDBExercisesEntry(workoutUpdate.Exercises, nameToID)
+	if len(notFound) > 0 {
+		return 0, fmt.Errorf("%s: some exercises not found: %w", op, err)
+	}
+
+	duration, err := time.ParseDuration(workoutUpdate.Duration)
+	if err != nil {
+		return 0, fmt.Errorf("%s: Invalid duration format: %w", op, err)
+	}
+
+	workout = models.Workout{
+		UserID: userID,
+		ProgramID: programID,
+		Exercises: exercisesEntryToSave,
+		Duration: duration,
+		Calories: workoutUpdate.Calories,
+	}
+
+	updatedID, err := s.WorkoutRepo.UpdateWorkout(workout, workoutID)
+	if err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return updatedID, nil
+}
+
+
 func (s *WorkoutService) GetWorkout(workoutID int, userID int) (*models.RequestGetWorkout, error){
 	const op = "internal.servises.workout_service.GetWorkout"
 

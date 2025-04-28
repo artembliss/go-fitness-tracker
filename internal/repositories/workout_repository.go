@@ -35,6 +35,24 @@ func (r *WorkoutRepository) SaveWorkout(workout models.Workout) (int, error){
 	return workoutID, nil
 }
 
+func (r *WorkoutRepository) UpdateWorkout(workout models.Workout, workoutID int) (int, error){
+	const op = "internal.repositories.UpdateWorkout"
+
+	query := `UPDATE workouts SET user_id = $1, program_id = $2, date = CURRENT_DATE, duration = $3, 
+	        calories = $4, created_at = NOW() 
+	        WHERE id = $5 AND user_id = $6 RETURNING id`
+
+	if err := r.db.QueryRow(query, workout.UserID, workout.ProgramID, workout.Duration, workout.Calories, workoutID, workout.UserID).Scan(&workoutID); err != nil{
+		return 0, fmt.Errorf("%s: failed to update workout: %w", op, err)
+	}
+
+	if err := r.SaveExercisesWorkout(workoutID, workout.Exercises); err != nil{
+		return 0, fmt.Errorf("%s: failed to save workout exercises: %w", op, err)
+	}
+
+	return workoutID, nil
+}
+
 func (r *WorkoutRepository) DeleteWorkout(workoutID int, userID int) (int, error){
 	const op = "internal.repositories.DeleteWorkout"
 	

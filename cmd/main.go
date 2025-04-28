@@ -70,6 +70,7 @@ func main() {
 		protected.POST("/workouts", handlers.CreateWorkoutHandler(workoutService))
 		protected.GET("/workouts", handlers.GetWorkoutHandler(workoutService))
 		protected.DELETE("/workouts", handlers.DeleteWorkoutHandler(workoutService))
+		protected.PATCH("/workouts", handlers.UpdateWorkoutHandler(workoutService))
 	}
 
 	if err := router.Run(":8080"); err != nil {
