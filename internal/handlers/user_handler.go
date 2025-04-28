@@ -42,3 +42,42 @@ func LoginUserHandler(s *services.AuthService) gin.HandlerFunc{
 		ctx.JSON(http.StatusOK, gin.H{"token": token})
 	}
 }
+
+func GetUserHandler(s *services.UserService) gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		email := ctx.Query("email")
+
+		if len(email) == 0{
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "user email is not set"})
+			return
+		}
+
+		user, err := s.GetUserByEmail(email)
+		if err != nil{
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, user)
+	}
+}
+
+func DeleteUserHandler(s *services.UserService) gin.HandlerFunc{
+	return func(ctx *gin.Context) {
+		email := ctx.Query("email")
+
+		if len(email) == 0{
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "user email is not set"})
+			return
+		}
+
+
+		deletedID, err := s.DeleteUser(email)
+		if err != nil{
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, deletedID)
+	}
+}

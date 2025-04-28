@@ -62,6 +62,9 @@ func main() {
 
 	protected := router.Group("/", authMiddleware)
 	{
+		protected.GET("/user", handlers.GetUserHandler(userService))
+		protected.DELETE("/user", handlers.DeleteUserHandler(userService))
+
 		protected.POST("/programs", handlers.CreateProgramHandler(programService))
 		protected.GET("/programs", handlers.GetProgramHandler(programService))
 		protected.DELETE("/programs", handlers.DeleteProgramHandler(programService))

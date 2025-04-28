@@ -43,11 +43,22 @@ func (s *UserService) RegisterUserService(reqUser *models.RequestCreateUser) (mo
 }
 
 func (s *UserService) GetUserByEmail(email string) (*models.User, error){
-	op := "services.GetUserIdByEmail"
+	const op = "services.GetUserByEmail"
 	
 	user, err := s.UserRepo.GetUserByEmail(email)
 	if err != nil{
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	return user, nil
+}
+
+func (s *UserService) DeleteUser(email string) (int, error){
+	const op = "services.DeleteUser"
+
+	deletedID, err := s.UserRepo.DeleteUser(email)
+	if err != nil{
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return deletedID, nil
 }

@@ -44,3 +44,16 @@ func (s *UserRepository) GetUserByEmail(email string) (*models.User, error){
 	}
 	return &user, nil
 }
+
+func (r *UserRepository) DeleteUser(email string) (int, error){
+	const op = "repositories.DeleteUser"
+	var deletedID int
+	
+	query := `DELETE FROM users WHERE email = $1 RETURNING id`
+
+	if err := r.db.QueryRow(query, email).Scan(&deletedID); err != nil{
+		return 0, fmt.Errorf("%s: failed to delete user by email: %w", op, err)
+	}
+
+	return deletedID, nil
+}
