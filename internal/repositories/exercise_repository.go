@@ -66,7 +66,7 @@ func (r *ExerciseRepository) GetExercisesByID(id int) (models.Exercise, error){
 
 	getAllExercisesQuery := `SELECT id, name, type, muscle_group, equipment, difficulty, instruction FROM exercises
 	WHERE ID = $1`
-	if err := r.db.Select(&exercise, getAllExercisesQuery, id); err != nil{
+	if err := r.db.Get(&exercise, getAllExercisesQuery, id); err != nil{
 		return models.Exercise{}, fmt.Errorf("%s: %w", op, err)
 	}
 	if exercise == (models.Exercise{}){
