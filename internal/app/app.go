@@ -13,6 +13,9 @@ import (
 	"github.com/artembliss/go-fitness-tracker/pkg/storage/postgre"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+	_ "github.com/artembliss/go-fitness-tracker/docs"
 )
 
 type App struct {
@@ -21,7 +24,7 @@ type App struct {
 }
 
 func (a *App) InitConfig(){
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Fatalf("Error uploading .env: %s", err)
 	}
 }
@@ -71,8 +74,10 @@ func (a *App) InitRouters(storage *postgre.Storage) {
 
 	router := gin.Default()
 
-	router.POST("/register", handlers.RegisterUserHandler(userService))
-	router.POST("/login", handlers.LoginUserHandler(authService))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	router.POST("/user/register", handlers.RegisterUserHandler(userService))
+	router.POST("/user/login", handlers.LoginUserHandler(authService))
 
 	router.GET("/exercises", handlers.GetAllExercisesHandler(exerciseService))
 	router.GET("/exercises/search", handlers.GetExerciseByParamHandler(exerciseService))

@@ -7,6 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetAllExercisesHandler godoc
+// @Summary Get all exercises
+// @Description Retrieve a list of all available exercises
+// @Tags Exercises
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Exercise
+// @Failure 404 {object} map[string]string
+// @Router /exercises [get]
 func GetAllExercisesHandler(s *services.ExerciseService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		exercises, err := s.GetAllExercises()
@@ -18,6 +27,21 @@ func GetAllExercisesHandler(s *services.ExerciseService) gin.HandlerFunc{
 	}
 }
 
+// GetExerciseByParamHandler godoc
+// @Summary Search exercises by parameter
+// @Description Find exercises by one of the following parameters: id, name, type, muscle group, or difficulty
+// @Tags Exercises
+// @Accept json
+// @Produce json
+// @Param id query string false "Exercise ID"
+// @Param name query string false "Exercise name"
+// @Param type query string false "Exercise type"
+// @Param muscle query string false "Target muscle group"
+// @Param difficulty query string false "Exercise difficulty level"
+// @Success 200 {array} models.Exercise
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /exercises/search [get]
 func GetExerciseByParamHandler(s *services.ExerciseService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		requestParams := make(map[string]string)

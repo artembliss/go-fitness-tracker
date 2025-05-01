@@ -8,6 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// RegisterUserHandler godoc
+// @Summary Register a new user
+// @Description Create a new user account
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body models.RequestCreateUser true "User registration information"
+// @Success 200 {object} map[string]int "Registered user ID"
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /user/register [post]
 func RegisterUserHandler(s *services.UserService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		var reqUser models.RequestCreateUser
@@ -24,6 +35,17 @@ func RegisterUserHandler(s *services.UserService) gin.HandlerFunc{
 	}
 }
 
+// LoginUserHandler godoc
+// @Summary Authenticate user and get token
+// @Description User login to obtain JWT token
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body models.RequestLoginUser true "User login credentials"
+// @Success 200 {object} map[string]string "JWT Token"
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /user/login [post]
 func LoginUserHandler(s *services.AuthService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		var userLogin models.RequestLoginUser
@@ -43,6 +65,18 @@ func LoginUserHandler(s *services.AuthService) gin.HandlerFunc{
 	}
 }
 
+// GetUserHandler godoc
+// @Summary Get user by email
+// @Description Retrieve user information using email address
+// @Security BearerAuth
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param email query string true "User email"
+// @Success 200 {object} models.User
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /user [get]
 func GetUserHandler(s *services.UserService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		email := ctx.Query("email")
@@ -62,6 +96,18 @@ func GetUserHandler(s *services.UserService) gin.HandlerFunc{
 	}
 }
 
+// DeleteUserHandler godoc
+// @Summary Delete user by email
+// @Description Delete a user account using their email address
+// @Security BearerAuth
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param email query string true "User email"
+// @Success 200 {integer} int "Deleted user ID"
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /user [delete]
 func DeleteUserHandler(s *services.UserService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		email := ctx.Query("email")

@@ -9,6 +9,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateProgramHandler godoc
+// @Summary Create a new workout program
+// @Description Create a program for a user with a list of exercises
+// @Security BearerAuth
+// @Tags Programs
+// @Accept json
+// @Produce json
+// @Param program body models.RequestCreateProgram true "Program information"
+// @Success 200 {integer} int "Created Program ID"
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /programs [post]
 func CreateProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		var programCreate models.RequestCreateProgram
@@ -46,6 +58,18 @@ func CreateProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	}
 }
 
+// GetProgramHandler godoc
+// @Summary Get a program by ID
+// @Description Retrieve a user's specific program by program ID
+// @Security BearerAuth
+// @Tags Programs
+// @Accept json
+// @Produce json
+// @Param id query int true "Program ID"
+// @Success 200 {object} models.Program
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /programs [get]
 func GetProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		userID := ctx.GetInt("userID")
@@ -72,6 +96,19 @@ func GetProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	}
 }
 
+// UpdateProgramHandler godoc
+// @Summary Update an existing workout program
+// @Description Update a program's name and exercises by its ID
+// @Security BearerAuth
+// @Tags Programs
+// @Accept json
+// @Produce json
+// @Param id query int true "Program ID"
+// @Param program body models.RequestCreateProgram true "Updated program information"
+// @Success 200 {integer} int "Updated Program ID"
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /programs [patch]
 func UpdateProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		var programUpdate models.RequestCreateProgram
@@ -116,7 +153,19 @@ func UpdateProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	}
 }
 
-//Delete row from exercises_program
+
+// DeleteProgramHandler godoc
+// @Summary Delete a workout program
+// @Description Delete a user's program by its ID
+// @Security BearerAuth
+// @Tags Programs
+// @Accept json
+// @Produce json
+// @Param id query int true "Program ID"
+// @Success 200 {integer} int "Deleted Program ID"
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /programs [delete]
 func DeleteProgramHandler(s *services.ProgramService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
 		userIdRaw, exist := ctx.Get("userID")

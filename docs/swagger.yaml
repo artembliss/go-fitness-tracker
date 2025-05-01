@@ -1,0 +1,700 @@
+basePath: /
+definitions:
+  models.Exercise:
+    properties:
+      difficulty:
+        type: string
+      equipment:
+        type: string
+      id:
+        type: integer
+      instruction:
+        type: string
+      muscleGroup:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  models.ExerciseEntry:
+    properties:
+      exerciseID:
+        type: integer
+      id:
+        type: integer
+      reps:
+        items:
+          type: integer
+        type: array
+      sets:
+        type: integer
+      weight:
+        items:
+          type: number
+        type: array
+      workoutID:
+        type: integer
+    type: object
+  models.ExerciseProgramDB:
+    properties:
+      exerciseID:
+        type: integer
+      id:
+        type: integer
+      programID:
+        type: integer
+      reps:
+        type: integer
+      sets:
+        type: integer
+      weight:
+        type: number
+    type: object
+  models.ExerciseRequest:
+    properties:
+      name:
+        type: string
+      reps:
+        type: integer
+      sets:
+        type: integer
+      weight:
+        type: number
+    type: object
+  models.ExerciseRequestEntry:
+    properties:
+      name:
+        type: string
+      reps:
+        items:
+          type: integer
+        type: array
+      sets:
+        type: integer
+      weight:
+        items:
+          type: number
+        type: array
+    type: object
+  models.Program:
+    properties:
+      exercises:
+        items:
+          $ref: '#/definitions/models.ExerciseProgramDB'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.RequestCreateProgram:
+    properties:
+      exercises:
+        items:
+          $ref: '#/definitions/models.ExerciseRequest'
+        type: array
+      name:
+        type: string
+    type: object
+  models.RequestCreateUser:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      gender:
+        type: string
+      height:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      weight:
+        type: number
+    type: object
+  models.RequestCreateWorkout:
+    properties:
+      calories:
+        type: number
+      duration:
+        type: string
+      exercises:
+        items:
+          $ref: '#/definitions/models.ExerciseRequestEntry'
+        type: array
+      program_name:
+        type: string
+    required:
+    - duration
+    type: object
+  models.RequestLoginUser:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  models.User:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      gender:
+        type: string
+      height:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      weight:
+        type: number
+    type: object
+  models.Workout:
+    properties:
+      calories:
+        type: number
+      date:
+        type: string
+      duration:
+        type: integer
+      exercises:
+        items:
+          $ref: '#/definitions/models.ExerciseEntry'
+        type: array
+      id:
+        type: integer
+      program_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for managing workouts, programs, and users.
+  title: Fitness Tracker API
+  version: "1.0"
+paths:
+  /exercises:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all available exercises
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Exercise'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all exercises
+      tags:
+      - Exercises
+  /exercises/search:
+    get:
+      consumes:
+      - application/json
+      description: 'Find exercises by one of the following parameters: id, name, type,
+        muscle group, or difficulty'
+      parameters:
+      - description: Exercise ID
+        in: query
+        name: id
+        type: string
+      - description: Exercise name
+        in: query
+        name: name
+        type: string
+      - description: Exercise type
+        in: query
+        name: type
+        type: string
+      - description: Target muscle group
+        in: query
+        name: muscle
+        type: string
+      - description: Exercise difficulty level
+        in: query
+        name: difficulty
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Exercise'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Search exercises by parameter
+      tags:
+      - Exercises
+  /programs:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user's program by its ID
+      parameters:
+      - description: Program ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deleted Program ID
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a workout program
+      tags:
+      - Programs
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a user's specific program by program ID
+      parameters:
+      - description: Program ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Program'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a program by ID
+      tags:
+      - Programs
+    patch:
+      consumes:
+      - application/json
+      description: Update a program's name and exercises by its ID
+      parameters:
+      - description: Program ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Updated program information
+        in: body
+        name: program
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestCreateProgram'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated Program ID
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update an existing workout program
+      tags:
+      - Programs
+    post:
+      consumes:
+      - application/json
+      description: Create a program for a user with a list of exercises
+      parameters:
+      - description: Program information
+        in: body
+        name: program
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestCreateProgram'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Created Program ID
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new workout program
+      tags:
+      - Programs
+  /user:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user account using their email address
+      parameters:
+      - description: User email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deleted user ID
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete user by email
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Retrieve user information using email address
+      parameters:
+      - description: User email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user by email
+      tags:
+      - Users
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: User login to obtain JWT token
+      parameters:
+      - description: User login credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestLoginUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT Token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Authenticate user and get token
+      tags:
+      - Users
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: User registration information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestCreateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Registered user ID
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - Users
+  /workouts:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific workout for the authenticated user
+      parameters:
+      - description: Workout ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deleted workout ID
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a workout by ID
+      tags:
+      - Workouts
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific workout for the authenticated user
+      parameters:
+      - description: Workout ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Workout'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a workout by ID
+      tags:
+      - Workouts
+    patch:
+      consumes:
+      - application/json
+      description: Update a specific workout's details for the authenticated user
+      parameters:
+      - description: Workout ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Updated workout information
+        in: body
+        name: workout
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestCreateWorkout'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated workout ID
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update an existing workout
+      tags:
+      - Workouts
+    post:
+      consumes:
+      - application/json
+      description: Create a new workout for the authenticated user
+      parameters:
+      - description: Workout information
+        in: body
+        name: workout
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestCreateWorkout'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Created workout ID
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new workout
+      tags:
+      - Workouts
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
