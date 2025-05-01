@@ -10,7 +10,7 @@ type Workout struct {
 	ProgramID int          `json:"program_id" db:"program_id"`
 	Date      time.Time       `json:"date" db:"date"`
 	Exercises []ExerciseEntry `json:"exercises" db:"exercises"`
-	Duration  time.Duration   `json:"duration" db:"duration"`
+	Duration  time.Duration   `json:"duration" db:"duration" swaggertype:"integer"`
 	Calories  float64         `json:"calories" db:"calories"`
 	CreatedAt time.Time       `json:"-" db:"created_at"`
 }

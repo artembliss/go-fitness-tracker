@@ -17,8 +17,8 @@ type ExerciseEntry struct {
 	WorkoutID  int             `db:"workout_id"`
 	ExerciseID int             `db:"exercise_id"`
 	Sets       int             `db:"sets"`
-	Reps       pq.Int64Array   `db:"reps"`
-	Weight     pq.Float64Array `db:"weight"`
+	Reps       pq.Int64Array   `db:"reps" swaggertype:"array,integer"`
+	Weight     pq.Float64Array `db:"weight" swaggertype:"array,number"`
 }
 
 type ExerciseRequestEntry struct {
