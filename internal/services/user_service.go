@@ -52,10 +52,10 @@ func (s *UserService) GetUserByEmail(email string) (*models.User, error){
 	return user, nil
 }
 
-func (s *UserService) DeleteUser(email string) (int, error){
+func (s *UserService) DeleteUser(email string, userID int) (int, error){
 	const op = "services.DeleteUser"
 
-	deletedID, err := s.UserRepo.DeleteUser(email)
+	deletedID, err := s.UserRepo.DeleteUser(email, userID)
 	if err != nil{
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}

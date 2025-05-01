@@ -71,8 +71,9 @@ func DeleteUserHandler(s *services.UserService) gin.HandlerFunc{
 			return
 		}
 
+		userID := ctx.GetInt("userID") 
 
-		deletedID, err := s.DeleteUser(email)
+		deletedID, err := s.DeleteUser(email, userID)
 		if err != nil{
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return

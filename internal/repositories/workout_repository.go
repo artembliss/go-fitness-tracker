@@ -53,21 +53,16 @@ func (r *WorkoutRepository) UpdateWorkout(workout models.Workout, workoutID int)
 	return workoutID, nil
 }
 
-func (r *WorkoutRepository) DeleteWorkout(workoutID int, userID int) (int, error){
+func (r *WorkoutRepository) DeleteWorkout(workoutID int, userID int) (int, error) {
 	const op = "internal.repositories.DeleteWorkout"
-	
-	var existID int
-	existQuery := `SELECT id FROM workouts WHERE id = $1`
-	if err := r.db.Get(&existID, existQuery, workoutID); err != nil{
-		return 0, fmt.Errorf("%s: %w", op, err)
+
+	var deletedID int
+	query := `DELETE FROM workouts WHERE id = $1 AND user_id = $2 RETURNING id`
+	if err := r.db.Get(&deletedID, query, workoutID, userID); err != nil {
+		return 0, fmt.Errorf("%s: failed to delete workout or unauthorized access: %w", op, err)
 	}
 
-	query := `DELETE FROM workouts WHERE id = $1 AND user_id = $2`
-	if _, err := r.db.Exec(query, workoutID, userID); err != nil{
-		return 0, fmt.Errorf("%s: failed to delete workout: %w", op, err)
-	}
-	
-	return workoutID, nil
+	return deletedID, nil
 }
 
 func (r *WorkoutRepository) DeleteWorkoutExercises(workoutID int) error{
