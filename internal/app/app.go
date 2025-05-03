@@ -1,10 +1,12 @@
 package app
 
 import (
+	"context"
 	"log"
 	"log/slog"
 	"os"
 
+	_ "github.com/artembliss/go-fitness-tracker/docs"
 	"github.com/artembliss/go-fitness-tracker/internal/handlers"
 	"github.com/artembliss/go-fitness-tracker/internal/middleware"
 	"github.com/artembliss/go-fitness-tracker/internal/repositories"
@@ -13,14 +15,16 @@ import (
 	"github.com/artembliss/go-fitness-tracker/pkg/storage/postgre"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
-	_ "github.com/artembliss/go-fitness-tracker/docs"
 )
 
 type App struct {
 	router *gin.Engine
 	logger *slog.Logger
+	db     *postgre.Storage
+	cache  *redis.Client
 }
 
 func (a *App) InitConfig(){
@@ -35,18 +39,33 @@ func (a *App) InitLogger(){
 	a.logger.Info("Starting server", slog.String("env", env))
 }
 
-func (a *App) InitDB() *postgre.Storage {
+func (a *App) InitDB(){
 	storage, err := postgre.New()
 	if err != nil {
 		a.logger.Error("failed to create storage", sl.Err(err))
 		os.Exit(1)
 	}
 	a.logger.Info("Storage initialized")
-	return &storage
+	
+	a.db = storage
+}
+
+func (a *App) InitRedis(){
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+        Password: "", 
+        DB:       0,  
+	})
+	if err := rdb.Ping(context.Background()).Err(); err != nil{
+		a.logger.Error("failed to init cashe", sl.Err(err))
+		os.Exit(1)
+	}
+
+	a.cache = rdb
 }
 
 
-func (a *App) InitRouters(storage *postgre.Storage) {
+func (a *App) InitRouters(storage *postgre.Storage, cache *redis.Client) {
 	db := storage.GetDB()
 
 	userRepo := repositories.NewUserRepository(db)
@@ -56,7 +75,7 @@ func (a *App) InitRouters(storage *postgre.Storage) {
 
 	userService := services.NewUserService(userRepo)
 	authService := services.NewAuthService(userRepo)
-	exerciseService := services.NewExerciseService(exerciseRepo)
+	exerciseService := services.NewExerciseService(exerciseRepo, cache)
 	programService := services.NewProgramService(programRepo)
 	workoutService := services.NewWorkoutService(workoutRepo)
 
@@ -104,8 +123,9 @@ func (a *App) InitRouters(storage *postgre.Storage) {
 func (a *App) Start() {
 	a.InitConfig()
 	a.InitLogger()
-	storage := a.InitDB()
-	a.InitRouters(storage)
+	a.InitDB()
+	a.InitRedis()
+	a.InitRouters(a.db, a.cache)
 
 	if err := a.router.Run(":8080"); err != nil {
 		a.logger.Error("Failed to start server:", sl.Err(err))

@@ -11,14 +11,19 @@ import (
 
 	"github.com/artembliss/go-fitness-tracker/internal/models"
 	"github.com/artembliss/go-fitness-tracker/internal/repositories"
+	"github.com/redis/go-redis/v9"
 )
 
 type ExerciseService struct{
 	ExerciseRepo *repositories.ExerciseRepository
+	Cache        *redis.Client
 }
 
-func NewExerciseService(repo *repositories.ExerciseRepository) *ExerciseService {
-	return &ExerciseService{ExerciseRepo: repo}
+func NewExerciseService(repo *repositories.ExerciseRepository, cache *redis.Client) *ExerciseService {
+	return &ExerciseService{
+		ExerciseRepo: repo,
+	    Cache: cache,
+	}
 }
 
 type ServiceFunc func(param ...interface{}) (interface{}, error)
