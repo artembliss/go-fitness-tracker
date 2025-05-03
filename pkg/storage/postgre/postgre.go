@@ -16,7 +16,7 @@ func (s *Storage) GetDB() *sqlx.DB {
 }
 
 
-func New() (Storage, error){
+func New() (*Storage, error){
 	const op = "storage.postgre.New"	
 
 	dbUser, userExist := os.LookupEnv("DB_USER")
@@ -25,14 +25,14 @@ func New() (Storage, error){
 	host, hostExist := os.LookupEnv("DB_HOST")
 	port, portExist := os.LookupEnv("DB_PORT")
 	if !userExist || !nameExist || !pswdExist || !hostExist || !portExist{
-		return Storage{}, fmt.Errorf("%s: some env variables not set", op)
+		return nil, fmt.Errorf("%s: some env variables not set", op)
 	} 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 	host, port, dbUser, dbPswd, dbName)
 
 	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil{
-		return Storage{}, fmt.Errorf("%s: failed to connect to storage: %w", op, err)
+		return nil, fmt.Errorf("%s: failed to connect to storage: %w", op, err)
 	}
 
 	createTableUsersQuery := `
@@ -48,7 +48,7 @@ func New() (Storage, error){
 		created_at TIMESTAMP DEFAULT now() NOT NULL
 	)`
 	if _, err := db.Exec(createTableUsersQuery); err != nil{
-		return Storage{}, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	
 	createTableProgramsQuery := `
@@ -59,7 +59,7 @@ func New() (Storage, error){
 	created_at TIMESTAMP DEFAULT now() NOT NULL
 	)`
 	if _, err := db.Exec(createTableProgramsQuery); err != nil{
-		return Storage{}, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	createTableWorkoutsQuery := `
@@ -73,7 +73,7 @@ func New() (Storage, error){
 	created_at TIMESTAMP DEFAULT now() NOT NULL
 	)`
 	if _, err := db.Exec(createTableWorkoutsQuery); err != nil{
-		return Storage{}, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	createTableExercisesQuery := `
@@ -86,7 +86,7 @@ func New() (Storage, error){
 	difficulty VARCHAR(255),
 	instruction TEXT)`
 	if _, err := db.Exec(createTableExercisesQuery); err != nil{
-		return Storage{}, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	createTableExercisesProgramQuery := `
@@ -98,7 +98,7 @@ func New() (Storage, error){
 	reps INTEGER NOT NULL,
 	weight DECIMAL(6,3))`
 	if _, err := db.Exec(createTableExercisesProgramQuery); err != nil{
-		return Storage{}, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	createTableExercisesEntryQuery := `
@@ -110,7 +110,7 @@ func New() (Storage, error){
 	reps INT[] NOT NULL,
 	weight DECIMAL(6,3)[])`
 	if _, err := db.Exec(createTableExercisesEntryQuery); err != nil{
-		return Storage{}, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	return Storage{db: db}, nil
+	return &Storage{db: db}, nil
 }
