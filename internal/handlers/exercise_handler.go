@@ -18,7 +18,7 @@ import (
 // @Router /exercises [get]
 func GetAllExercisesHandler(s *services.ExerciseService) gin.HandlerFunc{
 	return func(ctx *gin.Context) {
-		exercises, err := s.GetAllExercises()
+		exercises, err := s.GetAllExercises(ctx)
 		if err != nil{
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return

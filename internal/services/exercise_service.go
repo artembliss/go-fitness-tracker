@@ -1,10 +1,12 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -84,6 +86,7 @@ func (s *ExerciseService) FetchAllExercises() ([]models.ExerciseAPI, error) {
 
 func (s *ExerciseService) FetchAndStoreExercises() (error) {
 	op := "internal.servises.fetchAndStoreExercises"
+	
 	exercises, err := s.FetchAllExercises()
 	if err != nil {
 		return fmt.Errorf("%s, failed loading exercises: %w", op, err)
@@ -91,17 +94,51 @@ func (s *ExerciseService) FetchAndStoreExercises() (error) {
 	if err := s.ExerciseRepo.SaveExercisesToDB(exercises); err != nil {
 		return fmt.Errorf("%s, failed storing exercises: %w", op, err)
 	}
+
+	exercisesDB, err := s.ExerciseRepo.GetAllExercises()
+	if err != nil{
+		return fmt.Errorf("%s, failed to get all exercises: %w", op, err)
+	}
+
+	jsonString, err := json.Marshal(exercisesDB)
+	if err != nil{
+		return fmt.Errorf("%s, failed to marshal exercises: %w", op, err)
+	}
+	
+	if err := s.Cache.Set(context.Background(), "exercises:all", jsonString, 0).Err(); err != nil{
+		return fmt.Errorf("%s, failed to set exercises in the redis instance:  %w", op, err)
+	} 
+
 	return nil
 }
 
-func (s *ExerciseService) GetAllExercises() ([]models.Exercise, error){
-	op := "internal.servises.GetAllExercisesService"
+func (s *ExerciseService) GetAllExercises(ctx context.Context) ([]models.Exercise, error) {
+    op := "internal.services.GetAllExercises"
+
+    data, err := s.Cache.Get(ctx, "exercises:all").Result()
+    if err == nil {
+        var ex []models.Exercise
+        if err := json.Unmarshal([]byte(data), &ex); err == nil {
+            return ex, nil
+        }
+    } else if err != redis.Nil {
+        log.Printf("warning: failed to get all exercises from redis: %v", err)
+    }
 
 	exercises, err := s.ExerciseRepo.GetAllExercises()
-	if err != nil{
-		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-	return exercises, nil
+    if err != nil {
+        return nil, fmt.Errorf("%s: %w", op, err)
+    }
+
+    payload, err := json.Marshal(exercises)
+    if err != nil {
+        return exercises, nil
+    }
+    if setErr := s.Cache.Set(ctx, "exercises:all", payload, 0).Err(); setErr != nil {
+		log.Printf("warning: failed to set exercises in Redis: %v", setErr)
+    }
+
+    return exercises, nil
 }
 
 func (s *ExerciseService) GetExercisesByID(param ...interface{}) (interface{}, error){
