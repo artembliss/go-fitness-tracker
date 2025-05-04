@@ -85,7 +85,7 @@ func (s *ExerciseService) FetchAllExercises() ([]models.ExerciseAPI, error) {
 }
 
 func (s *ExerciseService) FetchAndStoreExercises() (error) {
-	op := "internal.servises.fetchAndStoreExercises"
+	op := "internal.services.fetchAndStoreExercises"
 	
 	exercises, err := s.FetchAllExercises()
 	if err != nil {
@@ -108,6 +108,19 @@ func (s *ExerciseService) FetchAndStoreExercises() (error) {
 	if err := s.Cache.Set(context.Background(), "exercises:all", jsonString, 0).Err(); err != nil{
 		return fmt.Errorf("%s, failed to set exercises in the redis instance:  %w", op, err)
 	} 
+	
+	for _, exercise := range exercisesDB{
+		key := fmt.Sprintf("exercises:search:id:%v", exercise.ID)
+
+		jsonString, err = json.Marshal(exercise)
+		if err != nil{
+			return fmt.Errorf("%s, failed to marshal exercise %s: %w", op, exercise.Name, err)
+		}
+
+		if err := s.Cache.Set(context.Background(), key, jsonString, 0).Err(); err != nil{
+			return fmt.Errorf("%s, failed to set exercise %s in the redis instance:  %w", op, exercise.Name, err)
+		} 
+	}
 
 	return nil
 }
@@ -142,7 +155,7 @@ func (s *ExerciseService) GetAllExercises(ctx context.Context) ([]models.Exercis
 }
 
 func (s *ExerciseService) GetExercisesByID(param ...interface{}) (interface{}, error){
-	op := "internal.servises.GetExercisesByID"
+	op := "internal.services.GetExercisesByID"
 
 	idStr, ok := param[0].(string)
 	if !ok{
@@ -157,9 +170,29 @@ func (s *ExerciseService) GetExercisesByID(param ...interface{}) (interface{}, e
 		return nil, fmt.Errorf("%s: id can not be 0", op)
 	}
 
+	key := fmt.Sprintf("exercises:search:id:%v", id)
+	data, err := s.Cache.Get(context.Background(), key).Result()
+	if err == nil{
+		var ex models.Exercise
+		if err := json.Unmarshal([]byte(data), &ex); err == nil{
+			return ex, nil
+		}
+	}else if err != redis.Nil{
+        log.Printf("warning: failed to get all exercises from redis: %v", err)
+	}
 	exercise, err := s.ExerciseRepo.GetExercisesByID(id)
 	if err != nil{
 		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	payload, err := json.Marshal(exercise)
+    if err != nil {
+        return exercise, nil
+    }
+	key = fmt.Sprintf("exercises:search:id:%v", exercise.ID)
+	
+	if err := s.Cache.Set(context.Background(), key, payload, 0).Err(); err != nil{
+		log.Printf("warning: failed to set exercise %s in Redis: %v", exercise.Name, err)
 	}
 
 	return exercise, nil
