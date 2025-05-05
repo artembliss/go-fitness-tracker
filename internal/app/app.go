@@ -5,6 +5,7 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"strconv"
 
 	_ "github.com/artembliss/go-fitness-tracker/docs"
 	"github.com/artembliss/go-fitness-tracker/internal/handlers"
@@ -51,10 +52,16 @@ func (a *App) InitDB(){
 }
 
 func (a *App) InitRedis(){
+	addr := os.Getenv("REDIS_ADDR")
+    dbNum, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+	if err != nil{
+		a.logger.Error("failed to fetch REDIS_DB .env var", sl.Err(err))
+		os.Exit(1)
+	}
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     addr,
         Password: "", 
-        DB:       0,  
+        DB:       dbNum,  
 	})
 	if err := rdb.Ping(context.Background()).Err(); err != nil{
 		a.logger.Error("failed to init cashe", sl.Err(err))
