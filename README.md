@@ -67,6 +67,7 @@ fitness-tracker
 ├── .env.example             # Sample env config
 ├── .gitignore
 ├── docker-compose.yaml      # Local stack: Postgres, Redis, migrate
+├── Dockerfile               ## Multi-stage Docker build for the Go application
 ├── go.mod
 ├── go.sum
 └── README.md                # You are here
